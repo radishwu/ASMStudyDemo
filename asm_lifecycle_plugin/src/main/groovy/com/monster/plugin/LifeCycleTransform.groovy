@@ -37,6 +37,7 @@ public class LifeCycleTransform extends Transform {
 
         // inputs 包含了 jar 包和目录。
         // 子 module 的 java 文件在编译过程中也会生成一个 jar 包然后编译到主工程中。
+        TransformOutputProvider outputProvider = transformInvocation.outputProvider
         transformInvocation.inputs.each {
             input ->
 
@@ -81,13 +82,9 @@ public class LifeCycleTransform extends Transform {
                 // 但是后面的 transform 可能需要处理，所以需要从输入流原封不动的写到输出流
                 input.jarInputs.each {
                     jarInput ->
-                        def jarName = jarInput.name
-                        println("jar = " + jarInput.file.getAbsolutePath())
-                        def md5Name = DigestUtils.md5Hex(jarInput.file.getAbsolutePath())
-                        if (jarName.endsWith(".jar")) {
-                            jarName = jarName.substring(0, jarName.length() - 4)
-                        }
-                        def dest = outputProvider.getContentLocation(jarName + md5Name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
+                        File file = jarInput.file
+                        System.out.println("find jar input:" + file.name)
+                        def dest = outputProvider.getContentLocation(jarInput.name, jarInput.contentTypes, jarInput.scopes, Format.JAR)
                         FileUtils.copyFile(jarInput.file, dest)
                 }
         }
